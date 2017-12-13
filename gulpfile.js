@@ -23,14 +23,30 @@ gulp.task('serve', ['sass', 'js', 'nunjucks', 'images'], function() {
 });
 
 // Builds project for production
-gulp.task('build', ['sass', 'js', 'nunjucks', 'images-prod']);
+gulp.task('build', ['sass', 'js', 'nunjucks-prod', 'images']);
 
 // Process Nunjucks templates
 gulp.task('nunjucks', function() {
   return gulp
     .src('src/templates/*.html')
     .pipe(data(function() {
-      return require('./src/data.json')
+      data = require('./src/data.json');
+      data.basepath = ''
+      return data
+    }))
+    .pipe(nunjucksRender({
+      path: ['src/templates/layouts', 'src/templates/partials']
+    }))
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('nunjucks-prod', function() {
+  return gulp
+    .src('src/templates/*.html')
+    .pipe(data(function() {
+      data = require('./src/data.json');
+      data.basepath = '/iodc18'
+      return data
     }))
     .pipe(nunjucksRender({
       path: ['src/templates/layouts', 'src/templates/partials']
@@ -58,13 +74,6 @@ gulp.task('sass-watch', ['sass'], function(done) {
 // Process image files
 gulp.task('images', function() {
   return gulp.src('src/images/*')
-    .pipe(gulp.dest('dist/images'))
-});
-
-gulp.task('images-prod', function() {
-  return gulp.src('src/images/*')
-    .pipe(imageResize({width: 1800, upscale: false, imageMagick: true}))
-    .pipe(imagemin())
     .pipe(gulp.dest('dist/images'))
 });
 
